@@ -4,28 +4,49 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.Socket;
 
+import org.slf4j.Logger;
+
 public class ServerReadThread extends Thread{
+	private static Logger log = TexasPokerServer.logger;
+	private TexasPokerServer instance;
 	private Socket socket;
-	ServerReadThread(Socket socket){
+	
+	public ServerReadThread(Socket socket){
 		this.socket = socket;
 	}
 	
-	@Override
-	public void run() {
-		try {
-			InputStream is = socket.getInputStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-			String line;
-			
-			while((line = reader.readLine()) != null) {
-				System.out.print(line);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-	}
+    @Override
+    public void run(){
+        try {            
+    		OutputStream os = socket.getOutputStream();
+    		PrintStream ps = new PrintStream(os);
+    		ps.println("enter ur name:");
+    		ps.flush();
+            
+    		String name;
+    		UserClient client = null;
+            InputStream i = socket.getInputStream();
+            BufferedReader b = new BufferedReader(new InputStreamReader(i));
+            while ((name=b.readLine())!=null){
+            	client = new UserClient(name,socket);
+            	instance.clientJoin(name, client);
+                break;
+            }
+            client.sendMessage("Welcome to TexasPoker,"+name);
+            client.sendMessage("Enjoy ur game");
+            String str;
+            while((str=b.readLine())!=null) {
+            	log.debug(name+" send "+str);
+            	instance.commandExecute(client, str, null);
+            }
+            
+        } catch (IOException e) {
+            log.info(socket.getRemoteSocketAddress()+" disconnecting");
+        }
+    }
 	
 }
