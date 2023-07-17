@@ -6,9 +6,9 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.util.List;
 
-import cn.blockmc.Zao_hon.command.CommandHandler;
+import cn.blockmc.Zao_hon.command.CommandSender;
 
-public class UserClient {
+public class UserClient implements CommandSender{
 	private String name;
 	private Socket socket;
 	public UserClient(String name,Socket socket) {
@@ -20,10 +20,12 @@ public class UserClient {
 		return name;
 	}
 	
+	@Override
 	public void sendMessages(List<String> list) {
 		list.forEach(str->sendMessage(str));
 	}
 	
+	@Override
 	public void sendMessage(String str) {
 		try {
 			OutputStream os = socket.getOutputStream();

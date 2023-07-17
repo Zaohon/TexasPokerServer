@@ -4,5 +4,5 @@ import cn.blockmc.Zao_hon.UserClient;
 
 public interface CommandHandler {
 	
-	boolean handle(UserClient client,String cmd,String[] args);
+	boolean handle(CommandSender sender,String cmd,String[] args);
 }

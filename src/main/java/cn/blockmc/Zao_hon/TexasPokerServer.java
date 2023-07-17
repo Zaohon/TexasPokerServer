@@ -5,31 +5,18 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.blockmc.Zao_hon.command.CommandDispatcher;
 import cn.blockmc.Zao_hon.command.CommandHandler;
+import cn.blockmc.Zao_hon.command.CommandSender;
 
 
-public class TexasPokerServer {
-	protected static Logger logger = LoggerFactory.getLogger(TexasPokerServer.class);
-	
-	public static void main(String[] args) throws IOException{
-		instance = get();
-		logger.debug("服务端启动");
-		logger.debug("Waiting for connection");
-		ServerSocket serverSocket = new ServerSocket(1818);
-		while(true) {
-			Socket socket = serverSocket.accept();
-			ServerReadThread thread = new ServerReadThread(socket);
-			thread.start();
-			logger.info(socket.getRemoteSocketAddress()+" connecting");
-		}
-	}
-	
-
-
+public class TexasPokerServer implements CommandSender{
+	private static Logger logger = Application.logger;
 	private static TexasPokerServer instance = null;
 	public static TexasPokerServer get() {
 		if(instance == null) {
@@ -38,10 +25,14 @@ public class TexasPokerServer {
 		return instance;
 	}
 	
+	public TexasPokerServer() {
+		this.setCommandExecutor(new CommandDispatcher(instance));
+		this.setChatExecutor(new ChatHandler());
+		new ServerConsoleThread().start();
+	}
+	
 	private CommandHandler commandExecutor = null;
 	private CommandHandler chatExecutor = null;
-	
-	private LinkedList<Socket> sockets = new LinkedList<Socket>();
 	private HashMap<String,UserClient> clients = new HashMap<String,UserClient>();
 	
 	public void clientJoin(String name,UserClient client) {
@@ -58,7 +49,7 @@ public class TexasPokerServer {
 	}
 	
 	
-	public boolean commandExecute(UserClient client,String cmd,String[] args) {
+	public boolean commandExecute(CommandSender client,String cmd,String[] args) {
 		if(cmd.startsWith("/")) {
 			cmd = cmd.substring(1);
 			return commandExecutor.handle(client, cmd, args);
@@ -66,5 +57,27 @@ public class TexasPokerServer {
 			return chatExecutor.handle(client, cmd, args);
 		}
 	}
+	public void setChatExecutor(CommandHandler handler) {
+		this.chatExecutor = handler;
+	}
+	public void setCommandExecutor(CommandHandler handler) {
+		this.commandExecutor = handler;
+	}
+
+	@Override
+	public void sendMessage(String str) {
+		logger.info(str);
+	}
+
+	@Override
+	public void sendMessages(List<String> list) {
+		list.forEach(str->sendMessage(str));
+	}
+	
+	public void broadcast(String str) {
+		clients.values().forEach(client->client.sendMessage(str));
+		this.sendMessage(str);
+	}
+	
 
 }

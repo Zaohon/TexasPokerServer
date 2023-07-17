@@ -11,11 +11,12 @@ import java.net.Socket;
 import org.slf4j.Logger;
 
 public class ServerReadThread extends Thread{
-	private static Logger log = TexasPokerServer.logger;
+	private static Logger log = Application.logger;
 	private TexasPokerServer instance;
 	private Socket socket;
 	
 	public ServerReadThread(Socket socket){
+		instance = TexasPokerServer.get();
 		this.socket = socket;
 	}
 	
