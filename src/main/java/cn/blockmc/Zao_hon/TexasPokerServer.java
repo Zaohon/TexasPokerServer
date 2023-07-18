@@ -1,15 +1,10 @@
 package cn.blockmc.Zao_hon;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.blockmc.Zao_hon.command.CommandDispatcher;
 import cn.blockmc.Zao_hon.command.CommandHandler;
 import cn.blockmc.Zao_hon.command.CommandSender;
@@ -49,12 +44,15 @@ public class TexasPokerServer implements CommandSender {
 		return clients.get(name);
 	}
 
-	public boolean commandExecute(CommandSender client, String cmd, String[] args) {
+	public boolean commandExecute(CommandSender client, String cmd, String[] x) {
 		if (cmd.startsWith("/")) {
 			cmd = cmd.substring(1);
+			String[] args = cmd.split(" ");
+			cmd = args[0];
+			args = Arrays.copyOfRange(args, 1, args.length);
 			return commandExecutor.handle(client, cmd, args);
 		} else {
-			return chatExecutor.handle(client, cmd, args);
+			return chatExecutor.handle(client, cmd, x);
 		}
 	}
 

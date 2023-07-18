@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import cn.blockmc.Zao_hon.command.CommandDispatcher;
 
 public class Application {
-	protected static Logger logger = LoggerFactory.getLogger(TexasPokerServer.class);
+	public static Logger logger = LoggerFactory.getLogger(TexasPokerServer.class);
 	
 	public static void main(String[] args) throws IOException{
 

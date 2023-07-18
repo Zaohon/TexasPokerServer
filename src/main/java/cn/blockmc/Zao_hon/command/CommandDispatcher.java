@@ -12,6 +12,7 @@ public class CommandDispatcher implements CommandHandler {
 		this.registerCommand(new InternalHelp());
 		this.registerCommand(new HelloCommand());
 		this.registerCommand(new QuitCommand());
+		this.registerCommand(new JoinCommand());
 	}
 	
 	public void registerCommand(ICommand command) {
