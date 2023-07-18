@@ -80,5 +80,9 @@ public class TexasPokerServer implements CommandSender {
 		clients.values().forEach(client -> client.sendMessage(str));
 		this.sendMessage(str);
 	}
+	
+	public boolean isUserOnline(String name) {
+		return clients.containsKey(name);
+	}
 
 }

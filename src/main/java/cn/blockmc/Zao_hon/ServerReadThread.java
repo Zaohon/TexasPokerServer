@@ -33,14 +33,14 @@ public class ServerReadThread extends Thread{
             InputStream i = socket.getInputStream();
             BufferedReader b = new BufferedReader(new InputStreamReader(i));
             while ((name=b.readLine())!=null){
-            	client = new UserClient(name,socket);
+            	client = new UserClient(name,socket,this);
             	instance.clientJoin(name, client);
                 break;
             }
             client.sendMessage("Welcome to TexasPoker,"+name);
             client.sendMessage("Enjoy ur game");
             String str;
-            while((str=b.readLine())!=null) {
+            while(instance.isUserOnline(name)&&(str=b.readLine())!=null) {
             	log.debug(name+" send "+str);
             	instance.commandExecute(client, str, null);
             }

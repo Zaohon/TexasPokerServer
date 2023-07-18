@@ -14,9 +14,11 @@ public class UserClient implements CommandSender{
 	private String name;
 	private Socket socket;
 	private BufferedWriter bw = null;
-	public UserClient(String name,Socket socket) {
+	private ServerReadThread thread;
+	public UserClient(String name,Socket socket,ServerReadThread thread) {
 		this.name = name;
 		this.socket = socket;
+		this.thread = thread;
 	}
 	
 	public String getName() {
@@ -35,6 +37,7 @@ public class UserClient implements CommandSender{
 				bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 			}
 			bw.write(str+"\r\n");
+			bw.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
