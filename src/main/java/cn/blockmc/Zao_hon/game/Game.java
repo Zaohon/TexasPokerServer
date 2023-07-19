@@ -31,7 +31,7 @@ public class Game implements CommandHandler {
 	}
 
 	private static final int MAX_USERS = 5;
-	private static final int MIN_USERS = 2;
+	private static final int MIN_USERS = 3;
 	private GAME_STAGE stage = GAME_STAGE.WAITING;
 	private Poker poker;
 	private PokerCard[] sharedCards = new PokerCard[5];
@@ -125,6 +125,7 @@ public class Game implements CommandHandler {
 		poker = new Poker();
 		userCards.clear();
 		isOut.clear();
+		pot = 0;
 	}
 
 	private void newRound() {
@@ -135,18 +136,16 @@ public class Game implements CommandHandler {
 				continue;
 			}
 			info(user, "Now it is ur move!");
-			info(user, "Choose Check , Bet , or Fold");
+			info(user, "Choose Check,Bet or Fold");
 			this.optionUser = name;
 			while (option == null) {
 //				Application.logger.debug("waiting for option");
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(2000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-			Application.logger.debug(option.toString());
-
 			OptionType type = option.getType();
 			int m = option.getPot();
 
@@ -169,7 +168,7 @@ public class Game implements CommandHandler {
 			optionUser = "";
 			option = null;
 		}
-		this.info("this round over,the pot is coming to " + pot);
+		this.info("this round over,the pot is coming to " + pot+"$");
 	}
 
 	@Override
@@ -199,7 +198,7 @@ public class Game implements CommandHandler {
 			this.userQuit(name);
 			info(user,"u have quited the room " + id);
 		} else {
-			String msg = name + " says " + cmd;
+			String msg = "[chat]"+name + " says: " + cmd;
 			this.broadcast(msg);
 		}
 		return true;
@@ -236,7 +235,7 @@ public class Game implements CommandHandler {
 					cards[0] = poker.popCard();
 					cards[1] = poker.popCard();
 					userCards.put(getName(), cards);
-					user.sendMessage("u get:" + cards[0].getDesc() + "," + cards[1].getDesc());
+					info(user,"u get:" + cards[0].getDesc() + "," + cards[1].getDesc());
 				});
 				newRound();
 				process(GAME_STAGE.AFTER_ROLL);

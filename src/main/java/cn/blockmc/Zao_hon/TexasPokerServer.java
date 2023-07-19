@@ -31,14 +31,12 @@ public class TexasPokerServer implements CommandSender {
 	private HashMap<String, UserClient> clients = new HashMap<String, UserClient>();
 
 	public void clientJoin(String name, UserClient client) {
-		logger.info(name + " has joined");
-		this.broadcast(name + " has joined");
+		this.broadcast(name + " has joined the game");
 		clients.put(name, client);
 	}
 
 	public void clientQuit(String name) {
-		logger.info(name + " has quited");
-		this.broadcast(name + " has quited");
+		this.broadcast(name + " has quited the game");
 		clients.remove(name);
 	}
 

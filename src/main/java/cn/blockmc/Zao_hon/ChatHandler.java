@@ -16,7 +16,7 @@ public class ChatHandler implements CommandHandler{
 			return true;
 		}
 		
-		String msg = "{" + name + "}"+cmd;
+		String msg = "[lobby]" + name + " says "+cmd;
 		TexasPokerServer.get().broadcast(msg);
 		return true;
 		
