@@ -32,11 +32,13 @@ public class TexasPokerServer implements CommandSender {
 
 	public void clientJoin(String name, UserClient client) {
 		logger.info(name + " has joined");
+		this.broadcast(name + " has joined");
 		clients.put(name, client);
 	}
 
 	public void clientQuit(String name) {
 		logger.info(name + " has quited");
+		this.broadcast(name + " has quited");
 		clients.remove(name);
 	}
 

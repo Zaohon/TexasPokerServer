@@ -28,4 +28,9 @@ public class PokerCard {
 	public String getDesc() {
 		return "("+decor.name() + " " + num.name()+")";
 	}
+	
+	@Override
+	public String toString() {
+		return decor + " " + num;
+	}
 }

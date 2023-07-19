@@ -35,7 +35,7 @@ public class JoinCommand implements ICommand {
 				client.sendMessage("this room is full");
 				return true;
 			}
-			client.sendMessage("u have joined room id 110");
+//			client.sendMessage("u have joined room id "+id);
 			game.userJoin(client);
 		} catch (Exception e) {
 			client.sendMessage("id must be a number");
