@@ -2,11 +2,22 @@ package cn.blockmc.Zao_hon.game;
 
 public class PokerCard {
 	enum Decor {
-		SPADE, HEART, DIAMOND, CLUB;
+
+		SPADE("Spade"), HEART("Heart"), DIAMOND("Diamond"), CLUB("Club");
+		
+		Decor(String name){
+			this.name = name;
+		}
+		String name;
 	}
 
 	enum Num {
-		A, K, Q, J, N10, N9, N8, N7, N6, N5, N4, N3, N2;
+		A("1"), K("K"), Q("Q"), J("J"), N10("10"), N9("9"), N8("8"), N7("7"), N6("6"), N5("5"), N4("4"), N3("3"), N2("2");
+		
+		Num(String name){
+			this.name = name;
+		}
+		String name;
 	}
 
 	private Decor decor;
@@ -24,13 +35,9 @@ public class PokerCard {
 	public Num getNum() {
 		return num;
 	}
-
-	public String getDesc() {
-		return "("+decor.name() + " " + num.name()+")";
-	}
 	
 	@Override
 	public String toString() {
-		return decor + " " + num;
+		return "{"+decor.name + " " + num.name+"}";
 	}
 }

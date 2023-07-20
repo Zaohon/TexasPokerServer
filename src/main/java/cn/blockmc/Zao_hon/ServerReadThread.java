@@ -1,10 +1,12 @@
 package cn.blockmc.Zao_hon;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.net.Socket;
 
@@ -22,21 +24,18 @@ public class ServerReadThread extends Thread {
 
 	@Override
 	public void run() {
-		try {
-			OutputStream os = socket.getOutputStream();
-			PrintStream ps = new PrintStream(os);
-			ps.println("enter ur name:");
-			ps.flush();
+		try(BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))){
+//			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			bw.write("enter ur name:\r\n");
+			bw.flush();
 
-			String name;
+			
 			UserClient client = null;
 			InputStream i = socket.getInputStream();
 			BufferedReader b = new BufferedReader(new InputStreamReader(i));
-			while ((name = b.readLine()) != null) {
-				client = new UserClient(name, socket, this);
-				instance.clientJoin(name, client);
-				break;
-			}
+			String name = b.readLine();
+			client = new UserClient(name, socket, this);
+			instance.clientJoin(name, client);
 			client.sendMessage("Welcome to TexasPoker," + name);
 			client.sendMessage("Enjoy ur game");
 			String str;
@@ -47,7 +46,7 @@ public class ServerReadThread extends Thread {
 
 		} catch (IOException e) {
 			log.info(socket.getRemoteSocketAddress() + " disconnecting");
-		}
+		} 
 	}
 
 }
