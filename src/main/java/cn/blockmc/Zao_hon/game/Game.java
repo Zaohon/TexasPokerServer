@@ -173,7 +173,7 @@ public class Game implements CommandHandler {
 				this.info("dont check pls,u can just bet now , u are making the server crashed,u fucking asshole");
 				break;
 			case FOLD:
-				this.info("dont fold pls,u can just bet now , u are making the server crashed,u fucking asshole");
+				this.info("dont folgood pls,u can just bet now , u are making the server crashed,u fucking asshole");
 				break;
 			case RAISE:
 				int newPot = m+roundBets.getOrDefault(name, 0);
@@ -199,12 +199,12 @@ public class Game implements CommandHandler {
 	}
 
 	@Override
-	public boolean handle(CommandSender sender, String cmd, String[] args) {
+	public boolean handle(CommandSender sender, String str, String[] args) {
 		UserClient user = (UserClient) sender;
 		String name = user.getName();
 
-		String[] strs = cmd.split(" ");
-		cmd = strs[0];
+		String[] strs = str.split(" ");
+		String cmd = strs[0];
 
 		if (cmd.equalsIgnoreCase("bet") || cmd.equalsIgnoreCase("check") || cmd.equalsIgnoreCase("fold")) {
 			if (stage == GAME_STAGE.WAITING) {
@@ -254,7 +254,7 @@ public class Game implements CommandHandler {
 			this.userQuit(name);
 			info(user, "u have quited the room " + id);
 		} else {
-			String msg = "[chat]" + name + " says: " + cmd;
+			String msg = "[chat]" + name + " says: " + str;
 			this.broadcast(msg);
 		}
 		return true;
