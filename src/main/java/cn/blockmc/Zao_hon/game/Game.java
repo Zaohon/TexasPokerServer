@@ -243,7 +243,6 @@ public class Game implements CommandHandler {
 					}
 				}
 				option = new Option(OptionType.BET, money);
-
 			} else if (cmd.equalsIgnoreCase("fold")) {
 				option = new Option(OptionType.FOLD);
 			} else if (cmd.equalsIgnoreCase("check")) {
@@ -254,7 +253,7 @@ public class Game implements CommandHandler {
 			this.userQuit(name);
 			info(user, "u have quited the room " + id);
 		} else {
-			String msg = "[chat]" + name + " says: " + str;
+			String msg = "[chat]" + name + ":" + str;
 			this.broadcast(msg);
 		}
 		return true;
