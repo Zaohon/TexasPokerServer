@@ -17,12 +17,12 @@ public class ServerReadThread extends Thread {
 
 	@Override
 	public void run() {
-		try{
+		try {
 			String name = socket.getRemoteSocketAddress().toString();
 			UserClient client = new UserClient(name, socket, this);
 			client.sendMessage("Enter ur name:");
 			name = client.readLine();
-			
+
 			client.setName(name);
 			instance.clientJoin(name, client);
 			client.sendMessage("[System]Welcome to TexasPoker," + name);
@@ -30,17 +30,23 @@ public class ServerReadThread extends Thread {
 
 			while (client.isOnline()) {
 				String str = client.readLine();
-				if(str==null) {
-					continue;
+				if (str == null) {
+					instance.clientQuit(name);
+					break;
 				}
 				log.debug(name + " send " + str);
 				instance.commandExecute(client, str, null);
 			}
-			socket.close();
 		} catch (IOException e) {
-			e.printStackTrace();
 			log.info(socket.getRemoteSocketAddress() + " disconnecting");
-		} 
+		}
+		if (!socket.isClosed()) {
+			try {
+				socket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 }

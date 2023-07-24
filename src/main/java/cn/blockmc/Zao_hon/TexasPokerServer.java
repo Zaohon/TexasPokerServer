@@ -37,9 +37,11 @@ public class TexasPokerServer implements CommandSender {
 
 	public void clientQuit(String name) {
 		UserClient client = clients.get(name);
-		client.sendMessage("You have quited the game");
-		clients.remove(name);
-		this.broadcast(name + " has quited the game");
+		if(client!=null) {
+			client.sendMessage("You have quited the game");
+			clients.remove(name);
+			this.broadcast(name + " has quited the game");
+		}
 
 	}
 

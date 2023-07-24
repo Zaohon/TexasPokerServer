@@ -64,9 +64,11 @@ public class UserClient implements CommandSender {
 			if(lenth==1) {
 				byte b = bytes[byteOffset];
 				if(b==3) {
-					throw new IOException("user quit");
+					return null;
+					
 				}else if(b == 8) {
 					socket.getOutputStream().write(new byte[] { 0x08, 0x20, 0x08 });
+					byteOffset=Math.max(0, byteOffset-1);
 				}else {
 					byteOffset++;
 				}
@@ -75,8 +77,11 @@ public class UserClient implements CommandSender {
 				break;
 			}
 		}
+		if(byteOffset==0) {
+			return readLine();
+		}
 		String str = new String(bytes,0,byteOffset);
-		Application.logger.debug(str+":"+byteOffset);
+//		Application.logger.debug(str+":"+byteOffset);
 		return str;
 	}
 
