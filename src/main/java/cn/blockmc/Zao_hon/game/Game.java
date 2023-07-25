@@ -8,6 +8,8 @@ import cn.blockmc.Zao_hon.Application;
 import cn.blockmc.Zao_hon.UserClient;
 import cn.blockmc.Zao_hon.command.CommandHandler;
 import cn.blockmc.Zao_hon.command.CommandSender;
+import cn.blockmc.Zao_hon.game.pokergroup.AbstractPokerGroup;
+import cn.blockmc.Zao_hon.game.pokergroup.PokerGroupFactory;
 
 public class Game implements CommandHandler {
 	enum GAME_STAGE {
@@ -140,8 +142,9 @@ public class Game implements CommandHandler {
 		totalPot = 0;
 		process(GAME_STAGE.WAITING);
 	}
-	
-	private int finishCount =0;
+
+	private int finishCount = 0;
+
 	private void newRound() {
 		for (Entry<String, UserClient> entry : users.entrySet()) {
 			String name = entry.getKey();
@@ -176,10 +179,10 @@ public class Game implements CommandHandler {
 				this.info("dont folgood pls,u can just bet now , u are making the server crashed,u fucking asshole");
 				break;
 			case RAISE:
-				int newPot = m+roundBets.getOrDefault(name, 0);
+				int newPot = m + roundBets.getOrDefault(name, 0);
 				this.info(optionUser + " just raise to " + newPot + "$");
 				totalPot += m;
-				roundPot=newPot;
+				roundPot = newPot;
 				roundBets.put(name, roundPot);
 				finishCount = 0;
 				break;
@@ -189,8 +192,8 @@ public class Game implements CommandHandler {
 			optionUser = "";
 			option = null;
 			finishCount++;
-			if(finishCount==users.size()) {
-				finishCount=0;
+			if (finishCount == users.size()) {
+				finishCount = 0;
 				return;
 			}
 
@@ -298,7 +301,7 @@ public class Game implements CommandHandler {
 					PokerCard[] cards = new PokerCard[2];
 					cards[0] = poker.popCard();
 					cards[1] = poker.popCard();
-					pocketCards.put(getName(), cards);
+					pocketCards.put(name, cards);
 					info(user, "u get:" + cards[0] + "," + cards[1]);
 				});
 				newRound();
@@ -362,7 +365,20 @@ public class Game implements CommandHandler {
 				Thread.sleep(1000);
 				newRound();
 				Thread.sleep(1000);
-				info("the game is finished , winner is zao_hon , who got the full pot , conguration!");
+
+				String winner = "";
+				AbstractPokerGroup winnerGroup = null;
+				for (String name : users.keySet()) {
+					PokerCard[] hand = pocketCards.get(name);
+					AbstractPokerGroup newGroup = PokerGroupFactory.findBestGroup(hand, sharedCards);
+					info("player " + name + "'s best fitting card group is " + newGroup);
+
+					if (winner == ""||newGroup.compareTo(winnerGroup)>0) {
+						winner = name;
+						winnerGroup = newGroup;
+					}
+				}
+				info("the game is finished , winner is "+winner+",who got "+winnerGroup);
 				Thread.sleep(1000);
 				info("game reseting..");
 				reset();

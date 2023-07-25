@@ -1,7 +1,7 @@
 package cn.blockmc.Zao_hon.game;
 
 public class PokerCard {
-	enum Decor {
+	public enum Decor {
 
 		SPADE("Spade"), HEART("Heart"), DIAMOND("Diamond"), CLUB("Club");
 		
@@ -11,8 +11,8 @@ public class PokerCard {
 		String name;
 	}
 
-	enum Num {
-		A("1"), K("K"), Q("Q"), J("J"), N10("10"), N9("9"), N8("8"), N7("7"), N6("6"), N5("5"), N4("4"), N3("3"), N2("2");
+	public enum Num {
+		 N2("2"),N3("3"),N4("4"), N5("5"),  N6("6"), N7("7"),N8("8"), N9("9"), N10("10"),  J("J"), Q("Q"), K("K"), A("1");
 		
 		Num(String name){
 			this.name = name;
