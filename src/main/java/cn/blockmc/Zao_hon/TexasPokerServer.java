@@ -8,6 +8,9 @@ import org.slf4j.Logger;
 import cn.blockmc.Zao_hon.command.CommandDispatcher;
 import cn.blockmc.Zao_hon.command.CommandHandler;
 import cn.blockmc.Zao_hon.command.CommandSender;
+import cn.blockmc.Zao_hon.threads.ServerConsoleThread;
+import cn.blockmc.Zao_hon.threads.ServerReadThread;
+import cn.blockmc.Zao_hon.threads.ThreadManager;
 
 public class TexasPokerServer implements CommandSender {
 	private static Logger logger = Application.logger;
@@ -23,12 +26,17 @@ public class TexasPokerServer implements CommandSender {
 	public TexasPokerServer() {
 		this.setCommandExecutor(new CommandDispatcher(instance));
 		this.setChatExecutor(new ChatHandler());
-		new ServerConsoleThread().start();
+		
+		ThreadManager.init();
+		
+		//new ServerConsoleThread().start();
 	}
 
 	private CommandHandler commandExecutor = null;
 	private CommandHandler chatExecutor = null;
 	private HashMap<String, UserClient> clients = new HashMap<String, UserClient>();
+//	private HashMap<String,ServerReadThread> readThreads = new HashMap<String,ServerReadThread>();
+	private boolean close =false;
 
 	public void clientJoin(String name, UserClient client) {
 		this.broadcast(name + " has joined the game");
@@ -86,6 +94,13 @@ public class TexasPokerServer implements CommandSender {
 	
 	public boolean isUserOnline(String name) {
 		return clients.containsKey(name);
+	}
+	
+	public boolean isClose() {
+		return close;
+	}
+	public void close() {
+		this.close=true;
 	}
 
 }

@@ -51,6 +51,8 @@ public class ThreeofaKind extends AbstractPokerGroup {
 				if(count==3) {
 					return new ThreeofaKind(list,i-2);
 				}
+			}else {
+				count=1;
 			}
 			card = c;
 		}

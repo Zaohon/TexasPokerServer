@@ -10,19 +10,18 @@ import java.net.Socket;
 import java.util.List;
 
 import cn.blockmc.Zao_hon.command.CommandSender;
+import cn.blockmc.Zao_hon.threads.ServerReadThread;
 
 public class UserClient implements CommandSender {
 	private String name;
 	private Socket socket;
 	private BufferedWriter bw = null;
 	private BufferedReader bi = null;
-	private ServerReadThread thread;
 	private int chip;
 
-	public UserClient(String name, Socket socket, ServerReadThread thread) {
+	public UserClient(String name, Socket socket) {
 		this.name = name;
 		this.socket = socket;
-		this.thread = thread;
 		this.chip = 1000;
 	}
 

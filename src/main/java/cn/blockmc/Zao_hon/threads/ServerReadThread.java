@@ -1,9 +1,13 @@
-package cn.blockmc.Zao_hon;
+package cn.blockmc.Zao_hon.threads;
 
 import java.io.IOException;
 import java.net.Socket;
 
 import org.slf4j.Logger;
+
+import cn.blockmc.Zao_hon.Application;
+import cn.blockmc.Zao_hon.TexasPokerServer;
+import cn.blockmc.Zao_hon.UserClient;
 
 public class ServerReadThread extends Thread {
 	private static Logger log = Application.logger;
@@ -19,7 +23,7 @@ public class ServerReadThread extends Thread {
 	public void run() {
 		try {
 			String name = socket.getRemoteSocketAddress().toString();
-			UserClient client = new UserClient(name, socket, this);
+			UserClient client = new UserClient(name, socket);
 			client.sendMessage("Enter ur name:");
 			name = client.readLine();
 
@@ -27,8 +31,10 @@ public class ServerReadThread extends Thread {
 			instance.clientJoin(name, client);
 			client.sendMessage("[System]Welcome to TexasPoker," + name);
 			client.sendMessage("[System]Enjoy ur game");
-
-			while (client.isOnline()) {
+			
+			
+			
+			while(true) {
 				String str = client.readLine();
 				if (str == null) {
 					instance.clientQuit(name);

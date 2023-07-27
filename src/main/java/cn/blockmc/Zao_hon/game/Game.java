@@ -2,6 +2,7 @@ package cn.blockmc.Zao_hon.game;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import cn.blockmc.Zao_hon.Application;
@@ -35,22 +36,21 @@ public class Game implements CommandHandler {
 	private static final int MAX_USERS = 5;
 	private static final int MIN_USERS = 2;
 	private GAME_STAGE stage = GAME_STAGE.WAITING;
-	private Poker poker;
+	private Poker poker = new Poker();
 	private PokerCard[] sharedCards = new PokerCard[5];
-	private LinkedHashMap<String, UserClient> users = new LinkedHashMap<String, UserClient>();
-	private HashMap<String, Boolean> isOut = new HashMap<String, Boolean>();
+	private LinkedHashMap<String, UserClient> roomUsers = new LinkedHashMap<String, UserClient>();
+	private LinkedList<String> tableUsers = new LinkedList<String>();
 	private HashMap<String, PokerCard[]> pocketCards = new HashMap<String, PokerCard[]>();
 	private String optionUser = "";
 	private Option option;
 	private int id;
 	private int totalPot;
 
-	private HashMap<String, Integer> roundBets = new HashMap<String, Integer>();
+	private HashMap<String, Integer> userBets = new HashMap<String, Integer>();
 	private int roundPot = 100;
 
 	public Game(int id) {
 		this.id = id;
-		poker = new Poker();
 	}
 
 	public int getID() {
@@ -88,30 +88,31 @@ public class Game implements CommandHandler {
 	}
 
 	public void userJoin(UserClient client) {
-		users.put(client.getName(), client);
+		roomUsers.put(client.getName(), client);
 		userGame.put(client.getName(), this);
-		info(client.getName() + " has joined the room,there are " + users.size() + " now");
+		info(client.getName() + " has joined the room,there are " + roomUsers.size() + " now");
 		checkStart();
 	}
 
 	private void checkStart() {
-		if (users.size() >= MIN_USERS) {
+		if (roomUsers.size() >= MIN_USERS) {
 			this.process(GAME_STAGE.READY);
 		}
 	}
 
 	public void userQuit(String name) {
-		users.remove(name);
+		roomUsers.remove(name);
+		tableUsers.remove(name);
 		userGame.remove(name);
-		info(name + " quit the room,there are " + users.size() + " now");
+		info(name + " quit the room,there are " + roomUsers.size() + " now");
 	}
 
 	public boolean isFull() {
-		return users.size() >= MAX_USERS;
+		return roomUsers.size() >= MAX_USERS;
 	}
 
 	public void broadcast(String str) {
-		users.values().forEach(u -> u.sendMessage(str));
+		roomUsers.values().forEach(u -> u.sendMessage(str));
 	}
 
 	private void info(String str) {
@@ -124,8 +125,8 @@ public class Game implements CommandHandler {
 		user.sendMessage(msg);
 	}
 
-	public int getUserSize() {
-		return users.size();
+	public int getRoomSize() {
+		return roomUsers.size();
 	}
 
 	public GAME_STAGE getStage() {
@@ -135,30 +136,28 @@ public class Game implements CommandHandler {
 	private void reset() {
 		option = null;
 		optionUser = "";
-		stage = GAME_STAGE.WAITING;
 		poker = new Poker();
+		sharedCards = new PokerCard[5];
 		pocketCards.clear();
-		isOut.clear();
+		tableUsers.clear();
 		totalPot = 0;
+		userBets.clear();
+		roundPot = 0;
 		process(GAME_STAGE.WAITING);
 	}
 
 	private int finishCount = 0;
 
 	private void newRound() {
-		for (Entry<String, UserClient> entry : users.entrySet()) {
-			String name = entry.getKey();
-			UserClient user = entry.getValue();
-			if (isOut.get(name)) {
-				continue;
-			}
+		for (String name : tableUsers) {
+			UserClient user = roomUsers.get(name);
+
 			info(user, "Now it is ur move!");
 			info(user, "Choose Check,Bet or Fold");
 			this.optionUser = name;
 			while (option == null) {
-//				Application.logger.debug("waiting for option");
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(1);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -168,37 +167,140 @@ public class Game implements CommandHandler {
 
 			switch (type) {
 			case BET:
-				this.info(optionUser + " just follow with " + roundPot + "$");
+				this.info(optionUser + " bet " + roundPot + "$");
 				totalPot += m;
-				roundBets.put(name, roundPot);
+				userBets.put(name, roundPot);
+				finishCount++;
 				break;
 			case CHECK:
-				this.info("dont check pls,u can just bet now , u are making the server crashed,u fucking asshole");
+				this.info("dont check , fu ck u ,just bet");
+				this.info(optionUser + " bet " + roundPot + "$");
+				totalPot += m;
+				userBets.put(name, roundPot);
+				finishCount++;
 				break;
 			case FOLD:
-				this.info("dont folgood pls,u can just bet now , u are making the server crashed,u fucking asshole");
+				tableUsers.remove(name);
+				this.info(optionUser + " fold");
 				break;
 			case RAISE:
-				int newPot = m + roundBets.getOrDefault(name, 0);
-				this.info(optionUser + " just raise to " + newPot + "$");
+				int newPot = m + userBets.getOrDefault(name, 0);
+				this.info(optionUser + " raise to " + newPot + "$");
 				totalPot += m;
 				roundPot = newPot;
-				roundBets.put(name, roundPot);
-				finishCount = 0;
+				userBets.put(name, roundPot);
+				finishCount = 1;
 				break;
 			default:
 				break;
 			}
 			optionUser = "";
 			option = null;
-			finishCount++;
-			if (finishCount == users.size()) {
+			if (finishCount == tableUsers.size()) {
 				finishCount = 0;
 				return;
 			}
 
 		}
 		newRound();
+
+//		for (Entry<String, UserClient> entry : roomUsers.entrySet()) {
+//		String name = entry.getKey();
+//		UserClient user = entry.getValue();
+//		if (isOut.get(name)) {
+//			continue;
+//		}
+//		info(user, "Now it is ur move!");
+//		info(user, "Choose Check,Bet or Fold");
+//		this.optionUser = name;
+//		while (option == null) {
+//			delay(1);
+//		}
+//		OptionType type = option.getType();
+//		int m = option.getPot();
+//
+//		switch (type) {
+//		case BET:
+//			this.info(optionUser + " just follow with " + roundPot + "$");
+//			totalPot += m;
+//			roundBets.put(name, roundPot);
+//			break;
+//		case CHECK:
+//			this.info("dont check pls,u can just bet now , u are making the server crashed,u fucking asshole");
+//			break;
+//		case FOLD:
+//			this.info("dont folgood pls,u can just bet now , u are making the server crashed,u fucking asshole");
+//			break;
+//		case RAISE:
+//			int newPot = m + roundBets.getOrDefault(name, 0);
+//			this.info(optionUser + " just raise to " + newPot + "$");
+//			totalPot += m;
+//			roundPot = newPot;
+//			roundBets.put(name, roundPot);
+//			finishCount = 0;
+//			break;
+//		default:
+//			break;
+//		}
+//		optionUser = "";
+//		option = null;
+//		finishCount++;
+//		if (finishCount == users.size()) {
+//			finishCount = 0;
+//			return;
+//		}
+//
+//	}
+//	newRound();
+
+//		for (Entry<String, UserClient> entry : roomUsers.entrySet()) {
+//			String name = entry.getKey();
+//			UserClient user = entry.getValue();
+//			if (isOut.get(name)) {
+//				continue;
+//			}
+//			info(user, "Now it is ur move!");
+//			info(user, "Choose Check,Bet or Fold");
+//			this.optionUser = name;
+//			while (option == null) {
+//				delay(1);
+//			}
+//			OptionType type = option.getType();
+//			int m = option.getPot();
+//
+//			switch (type) {
+//			case BET:
+//				this.info(optionUser + " just follow with " + roundPot + "$");
+//				totalPot += m;
+//				roundBets.put(name, roundPot);
+//				break;
+//			case CHECK:
+//				this.info("dont check pls,u can just bet now , u are making the server crashed,u fucking asshole");
+//				break;
+//			case FOLD:
+//				this.info("dont folgood pls,u can just bet now , u are making the server crashed,u fucking asshole");
+//				break;
+//			case RAISE:
+//				int newPot = m + roundBets.getOrDefault(name, 0);
+//				this.info(optionUser + " just raise to " + newPot + "$");
+//				totalPot += m;
+//				roundPot = newPot;
+//				roundBets.put(name, roundPot);
+//				finishCount = 0;
+//				break;
+//			default:
+//				break;
+//			}
+//			optionUser = "";
+//			option = null;
+//			finishCount++;
+//			if (finishCount == users.size()) {
+//				finishCount = 0;
+//				return;
+//			}
+//
+//		}
+//		newRound();
 	}
 
 	@Override
@@ -220,7 +322,7 @@ public class Game implements CommandHandler {
 				return true;
 			}
 			if (cmd.equalsIgnoreCase("bet")) {
-				int money = roundPot - roundBets.getOrDefault(name, 0);
+				int money = roundPot - userBets.getOrDefault(name, 0);
 				if (money < 0) {
 					this.info(user, "u dont have enough money to follow,try all-in,after it is supported");
 				}
@@ -246,6 +348,7 @@ public class Game implements CommandHandler {
 					}
 				}
 				option = new Option(OptionType.BET, money);
+				Application.logger.debug(option+" "+name+" "+optionUser);
 			} else if (cmd.equalsIgnoreCase("fold")) {
 				option = new Option(OptionType.FOLD);
 			} else if (cmd.equalsIgnoreCase("check")) {
@@ -277,11 +380,7 @@ public class Game implements CommandHandler {
 			int time = 5;
 			for (int i = time; i > 0; i--) {
 				info("Game Will Start in " + i + " seconds");
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+				delay(1);
 			}
 			process(GAME_STAGE.BEFORE_ROLL);
 		}
@@ -290,25 +389,35 @@ public class Game implements CommandHandler {
 	class BeforeRollThread extends Thread {
 		@Override
 		public void run() {
-			try {
-				Thread.sleep(1000);
-				info("Game Start!");
-				Thread.sleep(1000);
-				info("Entering Before Roll Stage,Check ur card!");
-				Thread.sleep(1000);
-				users.forEach((name, user) -> {
-					isOut.put(name, false);
-					PokerCard[] cards = new PokerCard[2];
-					cards[0] = poker.popCard();
-					cards[1] = poker.popCard();
-					pocketCards.put(name, cards);
-					info(user, "u get:" + cards[0] + "," + cards[1]);
-				});
-				newRound();
-				process(GAME_STAGE.AFTER_ROLL);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			for(String name:roomUsers.keySet()) {
+				tableUsers.add(name);
 			}
+			
+			info("Game Start!");
+			delay(1);
+			info("Entering Before Roll Stage,Check ur card!");
+			delay(1);
+
+			for (String name : tableUsers) {
+				UserClient user = roomUsers.get(name);
+				PokerCard[] cards = new PokerCard[2];
+				cards[0] = poker.popCard();
+				cards[1] = poker.popCard();
+				pocketCards.put(name, cards);
+				info(user, "u get:" + cards[0] + "," + cards[1]);
+			}
+			newRound();
+			
+			if(tableUsers.size()==1) {
+				String user = tableUsers.element();
+				info("Game finished,all players fold,except the winner "+user+" who got "+totalPot+" $!");
+				delay(1);
+				info("game reseting..");
+				reset();
+				return;
+			}
+			process(GAME_STAGE.AFTER_ROLL);
+
 			info("this round over,the total pot is up to " + totalPot + "$");
 		}
 	}
@@ -316,20 +425,26 @@ public class Game implements CommandHandler {
 	class AfterRollThread extends Thread {
 		@Override
 		public void run() {
-			try {
-				Thread.sleep(1000);
-				info("Entering After Roll Stage,reveal shared cards:");
-				for (int i = 0; i < 3; i++) {
-					Thread.sleep(1000);
-					PokerCard card = poker.popCard();
-					sharedCards[i] = card;
-				}
-				info(getSharedCards(3));
-				newRound();
-				process(GAME_STAGE.TRANSFER);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			delay(1);
+			info("Entering After Roll Stage,reveal shared cards:");
+			for (int i = 0; i < 3; i++) {
+				PokerCard card = poker.popCard();
+				sharedCards[i] = card;
 			}
+			delay(1);
+			info(getSharedCards(3));
+			newRound();
+			
+			if(tableUsers.size()==1) {
+				String user = tableUsers.element();
+				info("Game finished,all players fold,except the winner "+user+" who got "+totalPot+" $!");
+				delay(1);
+				info("game reseting..");
+				reset();
+				return;
+			}
+			
+			process(GAME_STAGE.TRANSFER);
 			info("this round over,the total pot is up to " + totalPot + "$");
 		}
 	}
@@ -337,17 +452,26 @@ public class Game implements CommandHandler {
 	class TransferThread extends Thread {
 		@Override
 		public void run() {
-			try {
-				Thread.sleep(1000);
-				info("Entering Transfer stage,reveal transfer card:");
-				PokerCard card = poker.popCard();
-				sharedCards[3] = card;
-				info(getSharedCards(4));
-				newRound();
-				process(GAME_STAGE.RIVER);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+
+			delay(1);
+			info("Entering Transfer stage,reveal transfer card:");
+			PokerCard card = poker.popCard();
+			sharedCards[3] = card;
+			info(getSharedCards(4));
+			newRound();
+			
+			if(tableUsers.size()==1) {
+				String user = tableUsers.element();
+				info("Game finished,all players fold,except the winner "+user+" who got "+totalPot+" $!");
+				delay(1);
+				info("game reseting..");
+				reset();
+				return;
 			}
+			
+			process(GAME_STAGE.RIVER);
+
+			
 			info("this round over,the total pot is up to " + totalPot + "$");
 		}
 	}
@@ -355,37 +479,54 @@ public class Game implements CommandHandler {
 	class RiverThread extends Thread {
 		@Override
 		public void run() {
-			try {
-				Thread.sleep(1000);
-				info("Entering river stage,reveal the last card:");
-				Thread.sleep(1000);
-				PokerCard card = poker.popCard();
-				sharedCards[4] = card;
-				info(getSharedCards(5));
-				Thread.sleep(1000);
-				newRound();
-				Thread.sleep(1000);
 
-				String winner = "";
-				AbstractPokerGroup winnerGroup = null;
-				for (String name : users.keySet()) {
-					PokerCard[] hand = pocketCards.get(name);
-					AbstractPokerGroup newGroup = PokerGroupFactory.findBestGroup(hand, sharedCards);
-					info("player " + name + "'s best fitting card group is " + newGroup);
-
-					if (winner == ""||newGroup.compareTo(winnerGroup)>0) {
-						winner = name;
-						winnerGroup = newGroup;
-					}
-				}
-				info("the game is finished , winner is "+winner+",who got "+winnerGroup);
-				Thread.sleep(1000);
+			delay(1);
+			info("Entering river stage,reveal the last card:");
+			PokerCard card = poker.popCard();
+			sharedCards[4] = card;
+			info(getSharedCards(5));
+			newRound();
+			
+			if(tableUsers.size()==1) {
+				String user = tableUsers.element();
+				info("Game finished,all players fold,except the winner "+user+" who got "+totalPot+" $!");
+				delay(1);
 				info("game reseting..");
 				reset();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+				return;
 			}
+			
+			delay(1);
+			String winner = "";
+			AbstractPokerGroup winnerGroup = null;
+			for (String name : tableUsers) {
+				PokerCard[] hand = pocketCards.get(name);
+				AbstractPokerGroup newGroup = PokerGroupFactory.findBestGroup(hand, sharedCards);
+				info("player " + name + "'s best fitting card group is " + newGroup);
+
+				if (winner == "" || newGroup.compareTo(winnerGroup) > 0) {
+					winner = name;
+					winnerGroup = newGroup;
+				}
+			}
+			info("the game is finished , winner is " + winner + ",who got " + winnerGroup);
+			delay(1);
+			info("game reseting..");
+			reset();
 
 		}
 	}
+
+	private final static boolean QUICK_MODE = false;
+
+	private static void delay(int t) {
+		if (!QUICK_MODE) {
+			try {
+				Thread.sleep(1000 * t);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 }

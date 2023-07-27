@@ -67,6 +67,8 @@ public class PokerGroupFactory {
 		private static final long serialVersionUID = 1L;
 
 		{
+			this.add(Flush.class);
+			this.add(Straight.class);
 			this.add(ThreeofaKind.class);
 			this.add(OnePair.class);
 			this.add(Trash.class);

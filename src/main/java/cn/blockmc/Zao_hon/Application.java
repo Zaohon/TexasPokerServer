@@ -10,6 +10,8 @@ import cn.blockmc.Zao_hon.game.Poker;
 import cn.blockmc.Zao_hon.game.PokerCard;
 import cn.blockmc.Zao_hon.game.pokergroup.AbstractPokerGroup;
 import cn.blockmc.Zao_hon.game.pokergroup.PokerGroupFactory;
+import cn.blockmc.Zao_hon.threads.ServerReadThread;
+import cn.blockmc.Zao_hon.threads.ThreadManager;
 
 public class Application {
 	public static Logger logger = LoggerFactory.getLogger(TexasPokerServer.class);
@@ -33,13 +35,19 @@ public class Application {
 
 		logger.debug("服务端启动");
 		logger.debug("Waiting for connection");
-		TexasPokerServer server = TexasPokerServer.get();
-		ServerSocket serverSocket = new ServerSocket(1818);
-		while(true) {
-			Socket socket = serverSocket.accept();
-			ServerReadThread thread = new ServerReadThread(socket);
-			thread.start();
-			logger.info(socket.getRemoteSocketAddress()+" connecting");
+		ServerSocket serverSocket;
+		try {
+			serverSocket = new ServerSocket(1818);
+			while (!TexasPokerServer.get().isClose()) {
+				Socket socket = serverSocket.accept();
+				ThreadManager.get().createReadThread(socket);
+				Application.logger.info(socket.getRemoteSocketAddress() + " connecting");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+		TexasPokerServer.get();
 	}
+	
+	
 }
