@@ -2,6 +2,7 @@ package cn.blockmc.Zao_hon.command;
 
 import cn.blockmc.Zao_hon.UserClient;
 import cn.blockmc.Zao_hon.game.Game;
+import cn.blockmc.Zao_hon.game.Room;
 
 public class JoinCommand implements ICommand {
 
@@ -30,13 +31,13 @@ public class JoinCommand implements ICommand {
 		String a = args[0];
 		try {
 			int id = Integer.valueOf(a);
-			Game game = Game.getGame(id);
-			if(game.isFull()) {
+			Room room = Room.getRoom(id);
+			if(room.isFull()) {
 				client.sendMessage("this room is full");
 				return true;
 			}
 //			client.sendMessage("u have joined room id "+id);
-			game.userJoin(client);
+			room.userJoin(client);
 		} catch (Exception e) {
 			client.sendMessage("id must be a number");
 			return true;

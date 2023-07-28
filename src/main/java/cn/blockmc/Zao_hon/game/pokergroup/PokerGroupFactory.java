@@ -17,8 +17,6 @@ public class PokerGroupFactory {
 		PokerCard[] combCards = new PokerCard[5];
 		AbstractPokerGroup group = null;
 
-		Application.logger.debug("finding best");
-
 		for (List<PokerCard> cards : Combination.of(Arrays.asList(shared), 3)) {
 
 			for (int i = 0; i < 2; i++) {
@@ -41,7 +39,6 @@ public class PokerGroupFactory {
 	public static AbstractPokerGroup fitGroup(PokerCard[] cards) {
 		for (Class<? extends AbstractPokerGroup> clazz : groups) {
 			AbstractPokerGroup group = getFitGroup(clazz, cards);
-//			Application.logger.debug("fix trash" + group.toString());
 			if (group != null) {
 				return group;
 			}
