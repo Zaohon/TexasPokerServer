@@ -23,13 +23,20 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.7.21</version>
 		</dependency>
+		 <dependency>
+			 <groupId>com.influxdb</groupId>
+			 <artifactId>influxdb-client-java</artifactId>
+			 <version>6.5.0</version>
+		 </dependency>
 	</dependencies>
-
 
 	<!-- build 标签：意思是告诉 Maven，你的构建行为，我要开始定制了！ -->
 	<build>
 		<!-- plugins 标签：Maven 你给我听好了，你给我构建的时候要用到这些插件！ -->
 		<plugins>
+			
+			
+
 			<!-- plugin 标签：这是我要指定的一个具体的插件 -->
 			<plugin>
 				<!-- 插件的坐标。此处引用的 maven-compiler-plugin 插件不是第三方的，是一个 Maven 自带的插件。 -->

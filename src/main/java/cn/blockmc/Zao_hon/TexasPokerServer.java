@@ -8,8 +8,7 @@ import org.slf4j.Logger;
 import cn.blockmc.Zao_hon.command.CommandDispatcher;
 import cn.blockmc.Zao_hon.command.CommandHandler;
 import cn.blockmc.Zao_hon.command.CommandSender;
-import cn.blockmc.Zao_hon.threads.ServerConsoleThread;
-import cn.blockmc.Zao_hon.threads.ServerReadThread;
+import cn.blockmc.Zao_hon.game.Room;
 import cn.blockmc.Zao_hon.threads.ThreadManager;
 
 public class TexasPokerServer implements CommandSender {
@@ -35,7 +34,6 @@ public class TexasPokerServer implements CommandSender {
 	private CommandHandler commandExecutor = null;
 	private CommandHandler chatExecutor = null;
 	private HashMap<String, UserClient> clients = new HashMap<String, UserClient>();
-//	private HashMap<String,ServerReadThread> readThreads = new HashMap<String,ServerReadThread>();
 	private boolean close =false;
 
 	public void clientJoin(String name, UserClient client) {
@@ -48,6 +46,11 @@ public class TexasPokerServer implements CommandSender {
 		if(client!=null) {
 			client.sendMessage("You have quited the game");
 			clients.remove(name);
+			Room room = Room.getRoom(name);
+			if(room!=null) {
+				room.userQuit(name);
+			}
+			client.closeSocket();
 			this.broadcast(name + " has quited the game");
 		}
 

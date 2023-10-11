@@ -32,4 +32,8 @@ public class ThreadManager {
 		thread.start();
 	}
 	
+	public void stopReadThread(Socket socket) {
+		
+	}
+	
 }

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import cn.blockmc.Zao_hon.Application;
+import cn.blockmc.Zao_hon.TexasPokerServer;
 import cn.blockmc.Zao_hon.UserClient;
 import cn.blockmc.Zao_hon.game.pokergroup.AbstractPokerGroup;
 import cn.blockmc.Zao_hon.game.pokergroup.PokerGroupFactory;
@@ -136,9 +137,10 @@ public class Game {
 	}
 
 	public void handleOption(String name, Option option) throws Exception {
+		UserClient client = TexasPokerServer.get().getClient(name);
 		OptionType type = option.getType();
 		int bet = option.getPot();
-		
+		int chip = client.getChip();
 		int betBefore = userBets.getOrDefault(name, 0);
 		int betLeast = roundPot - betBefore;
 		
@@ -154,22 +156,34 @@ public class Game {
 //				throw new Exception("u dont have enough money to follow,try all-in,after it is supported");
 //			}
 			if(bet==0) {
-				this.option = new Option(OptionType.BET,betLeast);
-				break;
+				bet = betLeast;				
+//				this.option = new Option(OptionType.BET,betLeast);
+//				break;
 			}
 
 			if (bet < betLeast) {
 				throw new Exception("u must bet as equal or bigger than " + betLeast);
 			}
+			
+			if(bet > chip) {
+				throw new Exception("u are beting "+bet+"$,but u only have "+chip+"$");
+			}
+			client.subChip(bet);
 			if (bet > betLeast) {
 				this.handleOption(name, new Option(OptionType.RAISE,bet+betBefore));
+				break;
 			}
-			this.option = new Option(OptionType.BET, betLeast);
+			this.option = new Option(OptionType.BET, bet);
 			break;
 		case RAISE:
+			bet = bet-betBefore;
+			if(bet > chip) {
+				throw new Exception("u need to bet "+bet+"$ more,but u only have "+chip+"$");
+			}
 			if (bet <= betLeast) {
 				throw new Exception("u must raise at least more than " + betLeast);
 			}
+			
 			this.option = option;
 			break;
 		case FOLD:

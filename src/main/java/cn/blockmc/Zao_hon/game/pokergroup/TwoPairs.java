@@ -32,7 +32,7 @@ public class TwoPairs extends AbstractPokerGroup {
 				return pairCom1;
 			}
 			for (int i = 0; i < cards.size(); i++) {
-				if (i == pairIndex1 || i == pairIndex1 + 1 || i == pairIndex2 || i == pairIndex2 + 1) {
+				if (i == pairIndex1 || i == pairIndex1 - 1 || i == pairIndex2 || i == pairIndex2 - 1) {
 					continue;
 				}
 				int com = cards.get(i).getNum().compareTo(t.cards.get(i).getNum());
@@ -55,9 +55,9 @@ public class TwoPairs extends AbstractPokerGroup {
 			PokerCard c = list.get(i);
 			if (card != null && card.getNum() == c.getNum()) {
 				if (pairIndex1 == 0) {
-					pairIndex1 = i - 1;
+					pairIndex1 = i;
 				} else {
-					pairIndex2 = i - 1;
+					pairIndex2 = i;
 					return new TwoPairs(list, pairIndex1, pairIndex2);
 				}
 			}
@@ -76,7 +76,7 @@ public class TwoPairs extends AbstractPokerGroup {
 		String str = "";
 
 		for (int i = 0; i < cards.size(); i++) {
-			if (i == pairIndex1 || i == pairIndex1 + 1 || i == pairIndex2 || i == pairIndex2 + 1) {
+			if (i == pairIndex1 || i == pairIndex1 - 1 || i == pairIndex2 || i == pairIndex2 - 1) {
 				continue;
 			}
 			PokerCard c = cards.get(i);

@@ -16,8 +16,7 @@ import cn.blockmc.Zao_hon.threads.ThreadManager;
 public class Application {
 	public static Logger logger = LoggerFactory.getLogger(TexasPokerServer.class);
 	
-	public static void main(String[] args) throws IOException{
-		
+	public static void main(String[] args) throws IOException{		
 		
 		Poker poker = new Poker();
 		PokerCard[] hands = new PokerCard[2];
@@ -51,3 +50,5 @@ public class Application {
 	
 	
 }
+
+

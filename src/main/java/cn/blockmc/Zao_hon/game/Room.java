@@ -118,7 +118,8 @@ public class Room implements CommandHandler {
 			} catch (IllegalArgumentException e) {
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				String err = e.getMessage();
+				info(user,err);
 			}
 		}
 

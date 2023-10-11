@@ -80,7 +80,6 @@ public class UserClient implements CommandSender {
 			return readLine();
 		}
 		String str = new String(bytes,0,byteOffset);
-//		Application.logger.debug(str+":"+byteOffset);
 		return str;
 	}
 
@@ -102,5 +101,16 @@ public class UserClient implements CommandSender {
 
 	public int subChip(int chip) {
 		return this.chip -= chip;
+	}
+	
+	public void closeSocket() {
+		if(!this.socket.isClosed()) {
+			try {
+				this.socket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 	}
 }
