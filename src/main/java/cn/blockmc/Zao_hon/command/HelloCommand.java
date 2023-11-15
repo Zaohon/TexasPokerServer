@@ -1,8 +1,6 @@
 package cn.blockmc.Zao_hon.command;
 
-import cn.blockmc.Zao_hon.UserClient;
-
-public class HelloCommand implements ICommand{
+public class HelloCommand implements ICommand {
 
 	@Override
 	public String getName() {

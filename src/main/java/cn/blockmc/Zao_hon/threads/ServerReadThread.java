@@ -8,6 +8,9 @@ import org.slf4j.Logger;
 import cn.blockmc.Zao_hon.Application;
 import cn.blockmc.Zao_hon.TexasPokerServer;
 import cn.blockmc.Zao_hon.UserClient;
+import cn.blockmc.Zao_hon.UserSocket;
+import cn.blockmc.Zao_hon.storage.UserInfo;
+import cn.blockmc.Zao_hon.storage.UserStorage;
 
 public class ServerReadThread extends Thread {
 	private static Logger log = Application.logger;
@@ -22,27 +25,26 @@ public class ServerReadThread extends Thread {
 	@Override
 	public void run() {
 		try {
-			String name = socket.getRemoteSocketAddress().toString();
-			UserClient client = new UserClient(name, socket);
-			client.sendMessage("Enter ur name:");
-			name = client.readLine();
+			UserSocket us = new UserSocket(socket);
+			us.sendMsg("Enter ur name:");
+			String name = us.readLine();
 
-			client.setName(name);
+			UserInfo info = UserStorage.get().loadUser(name);
+			UserClient client = new UserClient(info, us);
 			instance.clientJoin(name, client);
-			client.sendMessage("[System]Welcome to TexasPoker," + name);
+			client.sendMessage("[System]Welcome to TexasPoker♠," + name);
 			client.sendMessage("[System]Enjoy ur game");
-			
-			
-			
-			while(true) {
-				String str = client.readLine();
+
+			while (client.isOnline()) {
+				String str = us.readLine();
 				if (str == null) {
 					instance.clientQuit(name);
 					break;
 				}
-				log.debug(name + " send " + str);
+				// log.debug(name + " send " + str);
 				instance.commandExecute(client, str, null);
 			}
+			instance.clientQuit(name);
 		} catch (IOException e) {
 			log.info(socket.getRemoteSocketAddress() + " disconnecting");
 		}

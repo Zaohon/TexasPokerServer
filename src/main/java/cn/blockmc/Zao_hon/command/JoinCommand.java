@@ -1,7 +1,6 @@
 package cn.blockmc.Zao_hon.command;
 
 import cn.blockmc.Zao_hon.UserClient;
-import cn.blockmc.Zao_hon.game.Game;
 import cn.blockmc.Zao_hon.game.Room;
 
 public class JoinCommand implements ICommand {
@@ -32,7 +31,7 @@ public class JoinCommand implements ICommand {
 		try {
 			int id = Integer.valueOf(a);
 			Room room = Room.getRoom(id);
-			if(room.isFull()) {
+			if (room.isFull()) {
 				client.sendMessage("this room is full");
 				return true;
 			}

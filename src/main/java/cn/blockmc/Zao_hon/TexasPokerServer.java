@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.slf4j.Logger;
+
 import cn.blockmc.Zao_hon.command.CommandDispatcher;
 import cn.blockmc.Zao_hon.command.CommandHandler;
 import cn.blockmc.Zao_hon.command.CommandSender;
@@ -25,16 +26,16 @@ public class TexasPokerServer implements CommandSender {
 	public TexasPokerServer() {
 		this.setCommandExecutor(new CommandDispatcher(instance));
 		this.setChatExecutor(new ChatHandler());
-		
+	}
+
+	public void start() {
 		ThreadManager.init();
-		
-		//new ServerConsoleThread().start();
 	}
 
 	private CommandHandler commandExecutor = null;
 	private CommandHandler chatExecutor = null;
 	private HashMap<String, UserClient> clients = new HashMap<String, UserClient>();
-	private boolean close =false;
+	private boolean close = false;
 
 	public void clientJoin(String name, UserClient client) {
 		this.broadcast(name + " has joined the game");
@@ -43,14 +44,14 @@ public class TexasPokerServer implements CommandSender {
 
 	public void clientQuit(String name) {
 		UserClient client = clients.get(name);
-		if(client!=null) {
+		if (client != null) {
 			client.sendMessage("You have quited the game");
 			clients.remove(name);
 			Room room = Room.getRoom(name);
-			if(room!=null) {
+			if (room != null) {
 				room.userQuit(name);
 			}
-			client.closeSocket();
+			// client.closeSocket();
 			this.broadcast(name + " has quited the game");
 		}
 
@@ -94,16 +95,17 @@ public class TexasPokerServer implements CommandSender {
 		clients.values().forEach(client -> client.sendMessage(str));
 		this.sendMessage(str);
 	}
-	
+
 	public boolean isUserOnline(String name) {
 		return clients.containsKey(name);
 	}
-	
+
 	public boolean isClose() {
 		return close;
 	}
+
 	public void close() {
-		this.close=true;
+		this.close = true;
 	}
 
 }

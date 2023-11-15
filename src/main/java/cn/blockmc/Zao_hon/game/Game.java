@@ -135,7 +135,7 @@ public class Game {
 		}
 		newRound();
 	}
-
+	
 	public void handleOption(String name, Option option) throws Exception {
 		UserClient client = TexasPokerServer.get().getClient(name);
 		OptionType type = option.getType();
