@@ -104,6 +104,7 @@ public class Room implements CommandHandler {
 		if (cmd.equalsIgnoreCase("quit")) {
 			this.userQuit(name);
 			info(user, "u have quited the room " + id);
+			return true;
 		}
 
 		if (stage == RoomStage.PLAYING) {
@@ -119,7 +120,7 @@ public class Room implements CommandHandler {
 
 			} catch (Exception e) {
 				String err = e.getMessage();
-				info(user,err);
+				info(user, err);
 			}
 		}
 

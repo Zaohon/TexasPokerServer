@@ -20,7 +20,7 @@ public class UserSocket {
 	public void sendMsg(String str) {
 		try {
 			if (bw == null) {
-				bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+				bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "gbk"));
 			}
 			bw.write(str + "\r\n");
 			bw.flush();

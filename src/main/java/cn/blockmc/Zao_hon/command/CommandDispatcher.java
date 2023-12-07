@@ -6,22 +6,24 @@ import cn.blockmc.Zao_hon.TexasPokerServer;
 
 public class CommandDispatcher implements CommandHandler {
 	private TexasPokerServer server;
-	private HashMap<String, ICommand> mCommands = new HashMap<String,ICommand>();
+	private HashMap<String, ICommand> mCommands = new HashMap<String, ICommand>();
+
 	public CommandDispatcher(TexasPokerServer server) {
 		this.server = server;
 		this.registerCommand(new InternalHelp());
 		this.registerCommand(new HelloCommand());
 		this.registerCommand(new QuitCommand());
 		this.registerCommand(new JoinCommand());
+		this.registerCommand(new MoneyCommand());
 	}
-	
+
 	public void registerCommand(ICommand command) {
 		mCommands.put(command.getName().toLowerCase(), command);
 	}
 
 	@Override
 	public boolean handle(CommandSender sender, String cmd, String[] args) {
-		if(!mCommands.containsKey(cmd)) {
+		if (!mCommands.containsKey(cmd)) {
 			sender.sendMessage("command not found");
 			return false;
 		}
@@ -29,7 +31,7 @@ public class CommandDispatcher implements CommandHandler {
 		command.handle(sender, args);
 		return true;
 	}
-	
+
 	private class InternalHelp implements ICommand {
 
 		@Override
@@ -46,13 +48,13 @@ public class CommandDispatcher implements CommandHandler {
 		public boolean canBeConsole() {
 			return true;
 		}
+
 		@Override
 		public boolean handle(CommandSender sender, String[] args) {
-			mCommands.forEach((name,cmd)->sender.sendMessage("/"+name+" --"+cmd.getDescription()));
+			mCommands.forEach((name, cmd) -> sender.sendMessage("/" + name + " --" + cmd.getDescription()));
 			return true;
 		}
 
 	}
-	
 
 }

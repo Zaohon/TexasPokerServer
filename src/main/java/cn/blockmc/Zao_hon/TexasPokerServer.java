@@ -108,4 +108,7 @@ public class TexasPokerServer implements CommandSender {
 		this.close = true;
 	}
 
+	public int getOnlines() {
+		return this.clients.size();
+	}
 }

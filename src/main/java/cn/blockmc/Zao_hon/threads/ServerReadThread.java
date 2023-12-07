@@ -26,14 +26,17 @@ public class ServerReadThread extends Thread {
 	public void run() {
 		try {
 			UserSocket us = new UserSocket(socket);
-			us.sendMsg("Enter ur name:");
+			us.sendMsg("请输入你的名字:");
 			String name = us.readLine();
 
 			UserInfo info = UserStorage.get().loadUser(name);
 			UserClient client = new UserClient(info, us);
 			instance.clientJoin(name, client);
-			client.sendMessage("[System]Welcome to TexasPoker♠," + name);
-			client.sendMessage("[System]Enjoy ur game");
+			client.sendMessage("欢迎来到线上德州扑克♠," + name);
+			client.sendMessage("Enjoy ur game");
+			client.sendMessage("输入/help查看可使用的指令");
+			client.sendMessage("当前在线玩家" + instance.getOnlines() + "人");
+			client.sendMessage("你当前有筹码" + client.getChip() + "$");
 
 			while (client.isOnline()) {
 				String str = us.readLine();
